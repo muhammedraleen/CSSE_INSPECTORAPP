@@ -4,14 +4,10 @@ let Halt = String;
 
 exports.setHalt = (halt) => {
     Halt = halt;
-    console.log(halt);
 }
 
 exports.getHalt = () => {
-    if(Halt==null) {
-        return false;
-    }
-    return true;
+    return Halt;
 }
 
 exports.bookingDetatils =  [

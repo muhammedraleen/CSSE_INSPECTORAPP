@@ -1,11 +1,48 @@
 import React, {Component} from 'react';
 import { StyleSheet, Text, View, TextInput, TouchableOpacity } from 'react-native';
+//const { login } = require("../Utils/methods");
 
 export default class Login extends Component {
     state={
         email:"",
         password:""
     }
+    validate = (username, password) => {
+        if(!username){
+          alert('Please enter the username')
+        } else if(!password){
+          alert('please enter the password')
+        } else {
+          this.login(username,password)
+        }
+    }
+
+    login = async (username, password) => {
+      try{
+          await fetch('http://192.168.8.103:8000/api/authenticate-inspector', {
+              method: "POST",
+              headers: {
+                  Accept: "application/json",
+                  "Content-Type": "application/json",
+              },
+              body: JSON.stringify({ username,password }),
+          })
+          .then((res) => res.json())
+          .then((response) => {
+              console.log(response);
+              if (!response.isError) {
+                  alert(response.msg);
+                  {this.props.navigation.navigate('Home',{user: username})}
+              } else {
+                  alert(response.msg,'Please retry with correct credentials');
+              }
+          })
+      } catch (error) {
+          alert('Error when authenticating, Please try again later');
+          console.log(error);
+      }
+    }
+
   render() {
     return (
       <View style={styles.container}>
@@ -35,7 +72,7 @@ export default class Login extends Component {
 
         <TouchableOpacity style={styles.loginBtn}>
           <Text style={styles.loginText}
-          onPress={()=> this.props.navigation.navigate('Home',{user: this.state.email})}>LOGIN</Text>
+          onPress={()=> this.validate(this.state.email,this.state.password)}>LOGIN</Text>
         </TouchableOpacity>
 
       </View>
@@ -84,3 +121,4 @@ const styles = StyleSheet.create({
         marginBottom:10
     },
 });
+

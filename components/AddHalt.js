@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import { StyleSheet, Button, Linking, View, Text, TextInput } from 'react-native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
-import { createStackNavigator } from '@react-navigation/stack';
 
 const { setHalt } =  require("../database");
 
@@ -24,9 +23,14 @@ export default class AddHalt extends Component {
     }
   }
 
+  refreshPage() {
+    
+  }
+
   setCurrentHalt = (currentHalt) => {
-    setHalt(currentHalt)
-    {this.props.navigation.navigate('Home')}
+    setHalt(currentHalt);
+    {this.props.navigation.navigate('Home')};
+    this.refreshPage()
   }
 
   render() {
@@ -44,10 +48,10 @@ export default class AddHalt extends Component {
 
           <TouchableOpacity
                style = {styles.submitButton}
-               onPress = {
-                  () => this.validate(this.state.currentHalt)
-               }>
-               <Text style = {styles.submitButtonText}> Add </Text>
+               onPress = {() => this.validate(this.state.currentHalt)}
+               >
+          <Text style = {styles.submitButtonText}> Add </Text>
+
           </TouchableOpacity>
 
           <View style={styles.separator} lightColor="#eee" darkColor="rgba(255,255,255,0.1)" />

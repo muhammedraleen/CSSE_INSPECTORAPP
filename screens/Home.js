@@ -1,5 +1,4 @@
 import * as React from 'react';
-import Colors from '../constants/Colors';
 import { StyleSheet, View, Button, Text } from 'react-native';
 
 const { getHalt } =  require("../database");
@@ -7,7 +6,8 @@ const { getHalt } =  require("../database");
 export default function Home ({ route, navigation: { navigate } }) {
 
     const {user} = route.params;
-    return (
+
+    return ( 
       
       <View styles={styles.container}>
 
@@ -22,7 +22,7 @@ export default function Home ({ route, navigation: { navigate } }) {
         />
         
         <Button
-          disabled={getHalt()==false}
+          disabled={getHalt()==String}
           onPress={()=> navigate("Scanner")}
           title="Scan Code"
           styles={styles.button}
