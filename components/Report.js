@@ -1,101 +1,82 @@
 import React, { Component } from 'react';
-import { StyleSheet, Button, Linking, View, Text, Slider, SafeAreaView, TouchableOpacity} from 'react-native';
+import { StyleSheet, 
+          Button, 
+          Platform, 
+          View, 
+          Text,  
+          SafeAreaView, 
+          ActivityIndicator} from 'react-native';
+import ListView from "deprecated-react-native-listview";
 import axios from 'axios';
-import CardView from 'react-native-cardview';
 
 export default class Report extends Component {
   
-  state = {
-    value: 1,
-    data: [
-      { id: 1, addr: 'Hello' },
-      { id: 2, addr: 'Hi, Nice to meet you' },
-      { id: 3, addr: 'Hello, Nice to meet you too.' },
-      { id: 4, addr: 'How are you?' }
-    ]
+  constructor(props) {
+    super(props);
+    this.state = {
+      //to disable which data is loading
+      isLoading: true,
+    };
+  }
+
+  async componentDidMount() {
+    //calling Web Service just after screen is loaded
+    return fetch('http://192.168.8.101:8000/api/badCustomers')
+      .then(response => response.json())
+      .then(responseJson => {
+        let ds = new ListView.DataSource({
+          rowHasChanged: (r1, r2) => r1 !== r2,
+        });
+        this.setState({
+          isLoading: false,
+          dataSource: ds.cloneWithRows(responseJson),
+        });
+      })
+      .catch(error => {
+        console.error(error);
+      });
+  }
+
+  ListViewItemSeparator = () => {
+    //Divider for the list item
+    return (
+      <View
+        style={{ height: 0.5, width: '100%', backgroundColor: '#080808' }}
+      />
+    );
   };
 
-  change(value) {
-    this.setState(() => {
-      return {
-        value: parseFloat(value)
-      };
-    });
-  }
-
-  deleteData(id) {
-    let filteredData = this.state.data.filter(item => {
-      return item.id !== id;
-    });
-    this.setState({
-      data: filteredData
-    });
-  }
-
-  renderData(data) {
-    if (data.length === 0) {
+  render() {
+    if (this.state.isLoading) {
+      //returning the loader view while data is loading
       return (
-        <Text style={{ textAlign: 'center', padding: 10 }}>Data Empty</Text>
+        <View style={{ flex: 1, paddingTop: 20 }}>
+          <ActivityIndicator />
+        </View>
+      );
+    } else {
+      //returning the main view after data loaded successfully
+      return (
+        <View style={styles.MainContainer}>
+            <ListView
+            dataSource={this.state.dataSource}
+            renderSeparator={this.ListViewItemSeparator}
+            renderRow={rowData => (
+              <View
+                style={{
+                  flex: 1,
+                  flexDirection: 'column',
+               }}>
+                <Text style={styles.textViewContainerHeading}>
+                  {rowData.booking[0] + rowData.currentHalt}
+                </Text>
+                <Text style={styles.textViewContainer}>{rowData.body}</Text>
+              </View>
+            )}
+          />
+        </View>
       );
     }
-    return data.map(item => {
-      return (
-        <View
-          key={item.id}
-          style={{
-            alignItems: 'center',
-            flexDirection: 'row',
-            padding: 10,
-            justifyContent: 'space-between'
-          }}
-        >
-          <Text>{item.addr}</Text>
-          <TouchableOpacity
-            style={{ justifyContent: 'center' }}
-            onPress={() => this.deleteData(item.id)}
-          >
-            <Text>Delete</Text>
-          </TouchableOpacity>
-        </View>
-      );
-    });
-  }
-
-  render() {
-    const { data, value } = this.state;
-    return (
-      <SafeAreaView style={styles.safeAreaView}>
-        <View style={styles.container}>
-          <CardView
-            style={{
-              backgroundColor: 'white'
-            }}
-            cardElevation={value}
-            cardMaxElevation={value}
-            cornerRadius={5}
-            cornerOverlap={false}
-          >
-            <View style={styles.child}>
-              <View style={styles.titleView}>
-                <Text style={styles.title}>User Information</Text>
-              </View>
-              <View>{this.renderData(data)}</View>
-            </View>
-          </CardView>
-
-          <Slider
-            style={styles.sliderStyle}
-            step={1}
-            maximumValue={10}
-            onValueChange={this.change.bind(this)}
-            value={value}
-          />
-
-          <Text>{`cardElevation = ${value}`}</Text>
-          <Text>{`cardMaxElevation = ${value}`}</Text>
-        </View>
-      </SafeAreaView>
-    );
   }
 }
 
@@ -106,11 +87,11 @@ export default class Report extends Component {
       justifyContent: 'center',
       backgroundColor: '#F5FCFF'
     },
-    safeAreaView: {
-      flex: 1
-    },
-    child: {
-      width: 300
+    MainContainer: {
+      flex: 1,
+      paddingTop: Platform.OS === 'ios' ? 20 : 30,
+      backgroundColor: '#ffffff',
+      padding: 5,
     },
     title: {
       fontSize: 16,
@@ -122,9 +103,16 @@ export default class Report extends Component {
       borderBottomColor: '#e3e3e3',
       borderBottomWidth: 1
     },
-    sliderStyle: {
-      width: 300,
-      marginTop: 40
+    textViewContainerHeading: {
+      paddingLeft: 10,
+      paddingRight: 10,
+      fontSize: 20,
+      color: '#000000',
+      fontWeight: 'bold',
+    },
+    textViewContainer: {
+      paddingLeft: 10,
+      paddingRight: 10,
     },
     separator: {
       marginVertical: 30,

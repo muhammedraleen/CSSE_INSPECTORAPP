@@ -1,6 +1,7 @@
 import React, {Component} from 'react';
 import { StyleSheet, Text, View, TextInput, TouchableOpacity } from 'react-native';
-//const { login } = require("../Utils/methods");
+
+const { setUser } =  require("../database");
 
 export default class Login extends Component {
     state={
@@ -19,7 +20,7 @@ export default class Login extends Component {
 
     login = async (username, password) => {
       try{
-          await fetch('http://192.168.8.103:8000/api/authenticate-inspector', {
+          await fetch('http://192.168.8.101:8000/api/authenticate-inspector', {
               method: "POST",
               headers: {
                   Accept: "application/json",
@@ -32,6 +33,7 @@ export default class Login extends Component {
               console.log(response);
               if (!response.isError) {
                   alert(response.msg);
+                  setUser(username);
                   {this.props.navigation.navigate('Home',{user: username})}
               } else {
                   alert(response.msg,'Please retry with correct credentials');
